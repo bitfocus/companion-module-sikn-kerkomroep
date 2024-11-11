@@ -15,7 +15,7 @@ module.exports = function (self) {
 			callback: async (event) => {
 				self.getinfo(self)
 				self.checkFeedbacks();
-				console.log('Hello world!', event.options.num)
+				
 			},
 		},
 	})
