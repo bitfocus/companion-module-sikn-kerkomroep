@@ -28,7 +28,8 @@ class ModuleInstance extends InstanceBase {
 	}
 	getinfo(self) {
 		var lbody =
-			'<?xml version="1.0" encoding="UTF-8"?><ko><request><command>getkerkinfo</command><arguments><argument><name>id</name><value>10871</value></argument></arguments></request></ko>'
+			'<?xml version="1.0" encoding="UTF-8"?><ko><request><command>getkerkinfo</command><arguments><argument><name>id</name><value>'+self.config.mountpoint+'</value></argument></arguments></request></ko>'
+		self.log ('debug', 'request: ' + lbody)
 		var response
 		var responseData
 		var err

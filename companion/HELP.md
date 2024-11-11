@@ -6,4 +6,4 @@ The behaviour may change any moment unaccounced.
 
 There a two config items: 
 the id of the church (available in the url of the kerkomroep page of the church)
-the frequency to check the status of the stream
+the frequency to check the status of the stream, this is not yet implemented

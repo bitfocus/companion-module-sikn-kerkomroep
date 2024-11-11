@@ -21,7 +21,7 @@ module.exports = async function (self) {
 				},
 			],
 			callback: (feedback) => {
-				console.log('Hello world!', feedback.options.num)
+			
 				if (feedback.options.state == 1) {
 					return true
 				} else {
