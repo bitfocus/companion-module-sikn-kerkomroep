@@ -1,26 +1,26 @@
 {
-	"id": "your-module-name",
-	"name": "your-module-name",
-	"shortname": "module-shortname",
-	"description": "A short one line description of your module",
+	"id": "sikn-kerkomroep",
+	"name": "sikn-kerkomroep",
+	"shortname": "sikn-kerkomroep",
+	"description": "Module to check the status of a church",
 	"version": "0.0.0",
 	"license": "MIT",
-	"repository": "git+https://github.com/bitfocus/companion-module-your-module-name.git",
-	"bugs": "https://github.com/bitfocus/companion-module-your-module-name/issues",
+	"repository": "git+https://github.com/bitfocus/companion-sikn-kerkomroep.git",
+	"bugs": "https://github.com/bitfocus/companion-module-sikn-kerkomroep/issues",
 	"maintainers": [
 		{
-			"name": "Your name",
-			"email": "Your email"
+			"name": "Frans Bosman",
+			"email": "info@fbosman.nl"
 		}
 	],
 	"runtime": {
-		"type": "node22",
+		"type": "node18",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
 		"entrypoint": "../main.js"
 	},
 	"legacyIds": [],
-	"manufacturer": "Your company",
-	"products": ["Your product"],
-	"keywords": []
+	"manufacturer": "sikn",
+	"products": ["kerkomroep"],
+	"keywords": ["sikn", "kerkomroep", "church"]
 }

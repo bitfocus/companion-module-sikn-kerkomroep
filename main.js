@@ -3,6 +3,7 @@ const UpgradeScripts = require('./upgrades')
 const UpdateActions = require('./actions')
 const UpdateFeedbacks = require('./feedbacks')
 const UpdateVariableDefinitions = require('./variables')
+const xml2js = require('xml2js')
 
 class ModuleInstance extends InstanceBase {
 	constructor(internal) {
@@ -11,8 +12,11 @@ class ModuleInstance extends InstanceBase {
 
 	async init(config) {
 		this.config = config
-
+		this.log('debug', 'init')
+		this.getinfo(this) // connect to kerkomroep
 		this.updateStatus(InstanceStatus.Ok)
+		this.liveactiv = false
+		this.churchname = ''
 
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
@@ -21,6 +25,63 @@ class ModuleInstance extends InstanceBase {
 	// When module gets deleted
 	async destroy() {
 		this.log('debug', 'destroy')
+	}
+	getinfo(self) {
+		var lbody =
+			'<?xml version="1.0" encoding="UTF-8"?><ko><request><command>getkerkinfo</command><arguments><argument><name>id</name><value>10871</value></argument></arguments></request></ko>'
+		var response
+		var responseData
+		var err
+		var https = require('https')
+		const options = {
+			host: 'www.kerkomroep.nl',
+			path: '/xml/index.php',
+			method: 'POST',
+			body: lbody,
+			headers: { 'Content-Type': 'application/xml', 'Content-Length': Buffer.byteLength(lbody) },
+		}
+		const req = https.request(options, (res) => {
+			let responseData = ''
+
+			// A chunk of data has been received.
+			res.on('data', (chunk) => {
+				responseData += chunk
+			})
+
+			// The whole response has been received.
+			res.on('end', () => {
+				self.log('debug', 'Response:' + responseData)
+				xml2js.parseString(
+					responseData,
+					(err,
+					response) => {
+						if (err) {
+							throw err
+						}
+						self.log('debug', 'responseobject audio: ' + response.ko.response[0].kerkinfo[0].audio_aktief)
+			
+						self.liveactiv = response.ko.response[0].kerkinfo[0].audio_aktief
+						self.churchname = response.ko.response[0].kerkinfo[0].naam
+						
+					
+						self.setVariableValues({ 'LiveAudioState': self.liveactiv } ,)
+						self.setVariableValues({ 'Churchname': self.churchname} ,)
+
+						
+					}	,
+				)
+				
+			})
+		})
+
+		// Handle errors
+		req.on('error', (error) => {
+			self.log('debug', 'Error:' + error.message)
+		})
+
+		// Send the POST data
+		req.write(lbody)
+		req.end()
 	}
 
 	async configUpdated(config) {
@@ -32,17 +93,17 @@ class ModuleInstance extends InstanceBase {
 		return [
 			{
 				type: 'textinput',
-				id: 'host',
-				label: 'Target IP',
+				id: 'mountpoint',
+				label: 'ChurchID (last number in kerkomroep url of your church)',
 				width: 8,
-				regex: Regex.IP,
+				regex: Regex.NUMBER,
 			},
 			{
 				type: 'textinput',
-				id: 'port',
-				label: 'Target Port',
+				id: 'freq',
+				label: 'check frequency (in seconds)',
 				width: 4,
-				regex: Regex.PORT,
+				regex: Regex.NUMBER,
 			},
 		]
 	}
