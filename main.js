@@ -27,67 +27,69 @@ class ModuleInstance extends InstanceBase {
 		this.log('debug', 'destroy')
 	}
 	getinfo(self) {
-		var lbody =
-			'<?xml version="1.0" encoding="UTF-8"?><ko><request><command>getkerkinfo</command><arguments><argument><name>id</name><value>'+self.config.mountpoint+'</value></argument></arguments></request></ko>'
-		self.log ('debug', 'request: ' + lbody)
-		var response
-		var responseData
-		var err
-		var https = require('https')
-		const options = {
-			host: 'www.kerkomroep.nl',
-			path: '/xml/index.php',
-			method: 'POST',
-			body: lbody,
-			headers: { 'Content-Type': 'application/xml', 'Content-Length': Buffer.byteLength(lbody) },
+		if (self.config.mountpoint > 0) {
+			var lbody =
+				'<?xml version="1.0" encoding="UTF-8"?><ko><request><command>getkerkinfo</command><arguments><argument><name>id</name><value>' +
+				self.config.mountpoint +
+				'</value></argument></arguments></request></ko>'
+			self.log('debug', 'request: ' + lbody)
+			var response
+			var responseData
+			var err
+			var https = require('https')
+			const options = {
+				host: 'www.kerkomroep.nl',
+				path: '/xml/index.php',
+				method: 'POST',
+				body: lbody,
+				headers: { 'Content-Type': 'application/xml', 'Content-Length': Buffer.byteLength(lbody) },
+			}
+			const req = https.request(options, (res) => {
+				let responseData = ''
+
+				// A chunk of data has been received.
+				res.on('data', (chunk) => {
+					responseData += chunk
+				})
+
+				// The whole response has been received.
+				res.on('end', () => {
+					self.log('debug', 'Response:' + responseData)
+					try {
+						xml2js.parseString(responseData, (err, response) => {
+							if (err) {
+								self.log('debug', 'xmlparse error: ' + err)
+							}
+							self.log('debug', 'responseobject audio: ' + response.ko.response[0].kerkinfo[0].audio_aktief)
+
+							self.liveactiv = response.ko.response[0].kerkinfo[0].audio_aktief
+							self.churchname = response.ko.response[0].kerkinfo[0].naam
+							self.log('debug', 'responseobject systemvar: ' + self.liveactiv)
+
+							self.setVariableValues({ LiveAudioState: self.liveactiv })
+							self.setVariableValues({ Churchname: self.churchname })
+							self.checkFeedbacks()
+						})
+					} catch (error) {
+						self.log ('debug','xmlparse error catch:'+error)
+					}
+				})
+			})
+
+			// Handle errors
+			req.on('error', (error) => {
+				self.log('debug', 'Error:' + error.message)
+			})
+
+			// Send the POST data
+			req.write(lbody)
+			req.end()
 		}
-		const req = https.request(options, (res) => {
-			let responseData = ''
-
-			// A chunk of data has been received.
-			res.on('data', (chunk) => {
-				responseData += chunk
-			})
-
-			// The whole response has been received.
-			res.on('end', () => {
-				self.log('debug', 'Response:' + responseData)
-				xml2js.parseString(
-					responseData,
-					(err,
-					response) => {
-						if (err) {
-							throw err
-						}
-						self.log('debug', 'responseobject audio: ' + response.ko.response[0].kerkinfo[0].audio_aktief)
-			
-						self.liveactiv = response.ko.response[0].kerkinfo[0].audio_aktief
-						self.churchname = response.ko.response[0].kerkinfo[0].naam
-						self.log('debug', 'responseobject systemvar: ' + self.liveactiv)
-					
-						self.setVariableValues({ 'LiveAudioState': self.liveactiv } ,)
-						self.setVariableValues({ 'Churchname': self.churchname} ,)
-						self.checkFeedbacks();
-
-						
-					}	,
-				)
-				
-			})
-		})
-
-		// Handle errors
-		req.on('error', (error) => {
-			self.log('debug', 'Error:' + error.message)
-		})
-
-		// Send the POST data
-		req.write(lbody)
-		req.end()
 	}
 
 	async configUpdated(config) {
 		this.config = config
+		this.getinfo(this)
 	}
 
 	// Return config fields for web config
