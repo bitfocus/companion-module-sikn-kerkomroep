@@ -63,10 +63,11 @@ class ModuleInstance extends InstanceBase {
 			
 						self.liveactiv = response.ko.response[0].kerkinfo[0].audio_aktief
 						self.churchname = response.ko.response[0].kerkinfo[0].naam
-						
+						self.log('debug', 'responseobject systemvar: ' + self.liveactiv)
 					
 						self.setVariableValues({ 'LiveAudioState': self.liveactiv } ,)
 						self.setVariableValues({ 'Churchname': self.churchname} ,)
+						self.checkFeedbacks();
 
 						
 					}	,
