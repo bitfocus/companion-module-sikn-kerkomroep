@@ -16,6 +16,7 @@ class ModuleInstance extends InstanceBase {
 		this.getinfo(this) // connect to kerkomroep
 		this.updateStatus(InstanceStatus.Ok)
 		this.liveactiv = false
+		this.videoactiv = false
 		this.churchname = ''
 
 		this.updateActions() // export actions
@@ -61,12 +62,15 @@ class ModuleInstance extends InstanceBase {
 								self.log('debug', 'xmlparse error: ' + err)
 							}
 							self.log('debug', 'responseobject audio: ' + response.ko.response[0].kerkinfo[0].audio_aktief)
+							self.log('debug', 'responseobject video: ' + response.ko.response[0].kerkinfo[0].video_aktief)
 
 							self.liveactiv = response.ko.response[0].kerkinfo[0].audio_aktief
+							self.videoactiv = response.ko.response[0].kerkinfo[0].video_aktief
 							self.churchname = response.ko.response[0].kerkinfo[0].naam
-							self.log('debug', 'responseobject systemvar: ' + self.liveactiv)
+							//self.log('debug', 'responseobject systemvar: ' + self.liveactiv)
 
 							self.setVariableValues({ LiveAudioState: self.liveactiv })
+							self.setVariableValues({ LiveVideoState: self.videoactiv })
 							self.setVariableValues({ Churchname: self.churchname })
 							self.checkFeedbacks()
 						})
