@@ -21,7 +21,7 @@ module.exports = async function (self) {
 				},
 			],
 			callback: (feedback) => {
-				self.log ('debug', 'feedback: '+feedback.options.state +' state: '+self.liveactiv)
+				//self.log ('debug', 'feedback: '+feedback.options.state +' state: '+self.liveactiv)
 				if (feedback.options.state == self.liveactiv ) {
 					return true
 				} else {
